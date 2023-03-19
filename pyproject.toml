@@ -9,6 +9,10 @@ packages = [{include = "chatgpt_real_world_functions"}]
 [tool.poetry.dependencies]
 python = "^3.9"
 openai = "^0.27.2"
+python-dotenv = "^1.0.0"
+duckduckgo-search = "^2.8.5"
+requests = "^2.28.2"
+beautifulsoup4 = "^4.11.2"
 
 
 [build-system]
