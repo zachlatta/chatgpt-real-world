@@ -6,6 +6,7 @@ from duckduckgo_search import ddg
 
 import requests
 from bs4 import BeautifulSoup
+from gensim.summarization import summarize
 
 load_dotenv()
 
@@ -76,13 +77,17 @@ def search_online(args):
 
 def read_result(args):
     try:
-        search_result = most_recent_search_results[int(args[0])]
+        digits_only = re.sub("[^0-9]", "", args[0])
+        search_result = most_recent_search_results[int(digits_only)]
         response = requests.get(search_result['href'])
 
         soup = BeautifulSoup(response.content, 'html.parser')
 
         page_content = soup.get_text()
         clean_text = " ".join(page_content.split())
+
+        if len(clean_text.split()) > 250:
+            return summarize(clean_text, word_count=250)
 
         return clean_text
     except ValueError:
@@ -96,20 +101,14 @@ initialPrompt = ''
 with open('starting_prompt.md', encoding='utf-8') as f: initialPrompt = f.read()
 initialPrompt = str.join(' ', initialPrompt.splitlines())
 
-userMsg = '''
-What is the phone number of Seaway Car Wash in Burlington, Vermont?
-'''
-
 searchBot = ChatBot(initialPrompt)
 
-resp = searchBot(userMsg)
+resp = ''
 
-print(resp)
+end = False
 
-msg_count = 3
-
-while msg_count != 0:
-    match = re.search('/(\w+) (.+)', resp)
+while not end:
+    match = re.search('^/(\w+) (.+)', resp)
 
     if match:
         cmd_name = match.group(1)
@@ -125,12 +124,13 @@ while msg_count != 0:
 
         cmd_result = options[cmd_name](cmd_args)
 
-        print("COMMAND RESULT: {}".format(cmd_result))
-
         resp = searchBot(cmd_result)
 
     else:
         user_msg = input("> ")
-        resp = searchBot(user_msg)
 
-    msg_count -= 1
+        if user_msg == "exit":
+            end = True
+            break
+
+        resp = searchBot(user_msg)
