@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "chatgpt-real-world-functions"
+version = "0.1.0"
+description = ""
+authors = ["Zach Latta <zach@zachlatta.com>"]
+readme = "README.md"
+packages = [{include = "chatgpt_real_world_functions"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+openai = "^0.27.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
